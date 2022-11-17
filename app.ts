@@ -15,7 +15,7 @@ class Program {
 
         matrix.renderMatrix();
 
-        console.log(" - add row 0 to 1");
+        console.log(" - add row 1 to 0");
         matrix.addToRow(0,1, 1);
 
         matrix.renderMatrix();
@@ -30,7 +30,7 @@ class Program {
 
         matrix.renderMatrix();
 
-        console.log(" - add row 1 to 0");
+        console.log(" - add row 0 to 1");
         matrix.addToRow(1,0, 1);
 
         matrix.renderMatrix();
@@ -61,7 +61,7 @@ class Program {
 
         matrix.swapRows(0, 1);
 
-        // matrix.renderMatrix();
+        matrix.renderMatrix();
 
     }
 };
