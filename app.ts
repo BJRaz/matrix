@@ -15,7 +15,7 @@ class Program {
 
         matrix.renderMatrix();
 
-        console.log(" - add row 1 to 0");
+        console.log(" - add row 1 to row 0");
         matrix.addToRow(0,1, 1);
 
         matrix.renderMatrix();
