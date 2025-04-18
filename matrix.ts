@@ -19,9 +19,11 @@ export class Matrix {
     public insertRowAtIndex(rowindex: number, row:number[]) : void {
         this.totalMatrix[rowindex] = row;
     } 
-
+    /**
+     * add to row1, the values at row2 multiplied by c
+     **/
     public addToRow(row1:number, row2:number, c:number) : void {
-        // add to row1, the values at row2 multiplied by c
+        
         for(var i=0;i<this.cols;i++)
             this.totalMatrix[row1][i] += (c * this.totalMatrix[row2][i]);
     }
