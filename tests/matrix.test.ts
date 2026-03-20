@@ -8,6 +8,8 @@ describe('Matrix', () => {
         matrix = new Matrix(3, 3); // 3 rows, 3 columns
     });
 
+    // --- Basic Operations ---
+
     it('should initialize the matrix with zeros', () => {
         expect(matrix.getNoRows()).toBe(3);
         expect(matrix.getNoCols()).toBe(3);
@@ -29,7 +31,7 @@ describe('Matrix', () => {
         const row2 = [4, 5, 6];
         matrix.insertRowAtIndex(0, row1);
         matrix.insertRowAtIndex(1, row2);
-        matrix.addToRow(0, 1, 2); // row1 = row1 + 2 * row2
+        matrix.addToRow(0, 1, 2); // row0 = row0 + 2 * row1
 
         expect(matrix.getValueAt(0, 0)).toBe(9); // 1 + 2*4
         expect(matrix.getValueAt(0, 1)).toBe(12); // 2 + 2*5
@@ -63,119 +65,275 @@ describe('Matrix', () => {
         expect(() => matrix.scaleRow(0, 0)).toThrow('c must not be 0');
     });
 
-    // test('should perform various matrix operations and render the correct state', () => {
-    //     matrix = new Matrix(2, 3); // 3 rows, 3 columns
-    //     // Problem is:
-    //     //  4x1 + x2 = 9
-    //     //  x1 - x2 = 1
-    //     // Initial state should be zeros
-    //     expect(matrix.getValueAt(0, 0)).toBe(0);
-    //     expect(matrix.getValueAt(0, 1)).toBe(0);
-    //     expect(matrix.getValueAt(0, 2)).toBe(0);
-    //     expect(matrix.getValueAt(1, 0)).toBe(0);
-    //     expect(matrix.getValueAt(1, 1)).toBe(0);
-    //     expect(matrix.getValueAt(1, 2)).toBe(0);
-
-    //     // Insert rows
-    //     matrix.insertRowAtIndex(0, [4, 1, 9]);
-    //     matrix.insertRowAtIndex(1, [1, -1, 1]);
-
-    //     // Check after inserting rows
-    //     expect(matrix.getValueAt(0, 0)).toBe(4);
-    //     expect(matrix.getValueAt(0, 1)).toBe(1);
-    //     expect(matrix.getValueAt(0, 2)).toBe(9);
-    //     expect(matrix.getValueAt(1, 0)).toBe(1);
-    //     expect(matrix.getValueAt(1, 1)).toBe(-1);
-    //     expect(matrix.getValueAt(1, 2)).toBe(1);
-
-    //     // Add row 1 to row 0 with a scaling factor of 1
-    //     matrix.addToRow(0, 1, 1); // 0 = 0 + 1*(1, -1, 1)
-    //     matrix.renderMatrix();
-    //     // Scale row 0 by 1/5   
-    //     // After scaling, row 0 should be (1, 0, 2)
-    //     matrix.scaleRow(0, 1 / 5);
-    //     matrix.renderMatrix();
-    //     // Scale row 1 by -1
-    //     matrix.scaleRow(1, -1);
-    //     matrix.renderMatrix();
-    //     // Add row 0 to 1
-    //     matrix.addToRow(1, 0, 1);
-    //     matrix.renderMatrix();
-    //     // Validate solution
-    //     expect(matrix.getValueAt(0, 2)).toBe(2); // Solution x1 (originally)
-    //     expect(matrix.getValueAt(1, 2)).toBe(1); // Solution x2 (originally)
-
-    //     // Inverse operations
-    //     matrix.addToRow(1, 0, -1);
-    //     expect(matrix.getValueAt(1, 0)).toBe(-1); // 0 + (-1)
-        
-    //     matrix.scaleRow(1, -1);
-    //     expect(matrix.getValueAt(1, 0)).toBe(1); // -1 * -1
-
-    //     matrix.scaleRow(0, 5);
-    //     expect(matrix.getValueAt(0, 0)).toBe(5); // 1 * 5
-
-    //     matrix.addToRow(0, 1, -1);
-    //     expect(matrix.getValueAt(0, 0)).toBe(4); // 5 + (-1)
-        
-    //     // Finally swapping rows
-    //     matrix.swapRows(0, 1);
-    //     matrix.renderMatrix();
-    //     expect(matrix.getValueAt(0, 0)).toBe(4); // Now row 1 should be at row 0
-    //     expect(matrix.getValueAt(1, 0)).toBe(1); // Now row 0 should be at row 1
-    // });
-
-    test('should perform various matrix operations and render the correct state', () => {
-        matrix = new Matrix(2, 3); // 3 rows, 3 columns
-        // Problem is:
-        //  4x1 + x2 = 9
-        //  x1 - x2 = 1
-        // Initial state should be zeros
-        expect(matrix.getValueAt(0, 0)).toBe(0);
-        expect(matrix.getValueAt(0, 1)).toBe(0);
-        expect(matrix.getValueAt(0, 2)).toBe(0);
-        expect(matrix.getValueAt(1, 0)).toBe(0);
-        expect(matrix.getValueAt(1, 1)).toBe(0);
-        expect(matrix.getValueAt(1, 2)).toBe(0);
-
-        // Insert rows
-        matrix.insertRowAtIndex(0, [4, 1, 9]);
-        matrix.insertRowAtIndex(1, [1, -1, 1]);
-        
-        matrix.renderMatrix();
-
-        // Check after inserting rows
-        expect(matrix.getValueAt(0, 0)).toBe(4);
-        expect(matrix.getValueAt(0, 1)).toBe(1);
-        expect(matrix.getValueAt(0, 2)).toBe(9);
-        expect(matrix.getValueAt(1, 0)).toBe(1);
-        expect(matrix.getValueAt(1, 1)).toBe(-1);
-        expect(matrix.getValueAt(1, 2)).toBe(1);
-
-        // Add row 1 to row 0 with a scaling factor of 1
-        matrix.addToRow(0, 1, 1); // 0 = 0 + (-4)*(1, -1, 1) to eliminate x1 from row 0
-        matrix.renderMatrix();
-        // Scale row 0 by 1/5   
-        // After scaling, row 0 should be (1, 0, 2)
-        matrix.scaleRow(0, 1 / 5);
-        matrix.renderMatrix();
-        // Scale row 1 by -1
-        matrix.scaleRow(1, -1);
-        matrix.renderMatrix();
-        // Add row 0 to 1
-        matrix.addToRow(1, 0, 1);
-        matrix.renderMatrix();
-        // Validate solution
-        expect(matrix.getValueAt(0, 2)).toBe(2); // Solution x1 (originally)
-        expect(matrix.getValueAt(1, 2)).toBe(1); // Solution x2 (originally)
-
-       
+    it('should throw an error for out-of-bounds row access', () => {
+        expect(() => matrix.insertRowAtIndex(3, [1, 2, 3])).toThrow('Row index is out of bounds.');
+        expect(() => matrix.insertRowAtIndex(-1, [1, 2, 3])).toThrow('Row index is out of bounds.');
+        expect(() => matrix.scaleRow(-1, 2)).toThrow('Row is not within range.');
+        expect(() => matrix.scaleRow(3, 2)).toThrow('Row is not within range.');
     });
 
-//    it('should throw an error for out-of-bounds row access', () => {
-//         expect(() => matrix.insertRowAtIndex(3, [1, 2, 3])).toThrow('Row index is out of bounds.');
-//         expect(() => matrix.addToRow(1, 0, 2)).toThrow('Row indices must be within range.');
-//         expect(() => matrix.scaleRow(-1, 2)).toThrow('Row is not within range.');
-//         expect(() => matrix.scaleRow(3, 2)).toThrow('Row is not within range.');
-//     });
+    // --- Gaussian Elimination ---
+
+    describe('gaussianElimination', () => {
+        it('should solve a 2x2 system of equations', () => {
+            // 4x1 + x2 = 9
+            // x1 - x2 = 1
+            // Solution: x1 = 2, x2 = 1
+            const m = new Matrix(2, 3);
+            m.insertRowAtIndex(0, [4, 1, 9]);
+            m.insertRowAtIndex(1, [1, -1, 1]);
+
+            m.gaussianElimination();
+
+            // RREF should be identity on left, solution on right
+            expect(m.getValueAt(0, 0)).toBeCloseTo(1);
+            expect(m.getValueAt(0, 1)).toBeCloseTo(0);
+            expect(m.getValueAt(0, 2)).toBeCloseTo(2); // x1 = 2
+            expect(m.getValueAt(1, 0)).toBeCloseTo(0);
+            expect(m.getValueAt(1, 1)).toBeCloseTo(1);
+            expect(m.getValueAt(1, 2)).toBeCloseTo(1); // x2 = 1
+        });
+
+        it('should solve a 3x3 system of equations', () => {
+            // 2x1 + x2 - x3 = 1
+            // x1 + 3x2 + 2x3 = 13
+            // x1 + x2 + x3 = 6
+            // Solution: x1 = 1, x2 = 2, x3 = 3
+            const m = new Matrix(3, 4);
+            m.insertRowAtIndex(0, [2, 1, -1, 1]);
+            m.insertRowAtIndex(1, [1, 3, 2, 13]);
+            m.insertRowAtIndex(2, [1, 1, 1, 6]);
+
+            m.gaussianElimination();
+
+            const solution = m.getSolution();
+            expect(solution[0]).toBeCloseTo(1);
+            expect(solution[1]).toBeCloseTo(2);
+            expect(solution[2]).toBeCloseTo(3);
+        });
+
+        it('should handle a system requiring row swaps (zero pivot)', () => {
+            // 0x1 + 2x2 = 4
+            // 3x1 + 1x2 = 5
+            // Solution: x1 = 1, x2 = 2
+            const m = new Matrix(2, 3);
+            m.insertRowAtIndex(0, [0, 2, 4]);
+            m.insertRowAtIndex(1, [3, 1, 5]);
+
+            m.gaussianElimination();
+
+            const solution = m.getSolution();
+            expect(solution[0]).toBeCloseTo(1);
+            expect(solution[1]).toBeCloseTo(2);
+        });
+
+        it('should handle a system with negative coefficients', () => {
+            // -2x1 + x2 = -3
+            // x1 + 3x2 = 5
+            // Solution: x1 = 2, x2 = 1
+            const m = new Matrix(2, 3);
+            m.insertRowAtIndex(0, [-2, 1, -3]);
+            m.insertRowAtIndex(1, [1, 3, 5]);
+
+            m.gaussianElimination();
+
+            const solution = m.getSolution();
+            expect(solution[0]).toBeCloseTo(2);
+            expect(solution[1]).toBeCloseTo(1);
+        });
+
+        it('should solve an already-diagonal matrix (identity coefficients)', () => {
+            // 1x1 = 5
+            // 1x2 = 3
+            const m = new Matrix(2, 3);
+            m.insertRowAtIndex(0, [1, 0, 5]);
+            m.insertRowAtIndex(1, [0, 1, 3]);
+
+            m.gaussianElimination();
+
+            const solution = m.getSolution();
+            expect(solution[0]).toBeCloseTo(5);
+            expect(solution[1]).toBeCloseTo(3);
+        });
+
+        it('should throw an error for a singular matrix (no unique solution)', () => {
+            // x1 + x2 = 2
+            // 2x1 + 2x2 = 4  (same equation, linearly dependent)
+            const m = new Matrix(2, 3);
+            m.insertRowAtIndex(0, [1, 1, 2]);
+            m.insertRowAtIndex(1, [2, 2, 4]);
+
+            expect(() => m.gaussianElimination()).toThrow('No unique solution');
+        });
+
+        it('should throw an error for an inconsistent system', () => {
+            // x1 + x2 = 2
+            // x1 + x2 = 5  (contradictory)
+            const m = new Matrix(2, 3);
+            m.insertRowAtIndex(0, [1, 1, 2]);
+            m.insertRowAtIndex(1, [1, 1, 5]);
+
+            expect(() => m.gaussianElimination()).toThrow('No unique solution');
+        });
+
+        it('should record operations during elimination', () => {
+            const m = new Matrix(2, 3);
+            m.insertRowAtIndex(0, [4, 1, 9]);
+            m.insertRowAtIndex(1, [1, -1, 1]);
+
+            m.gaussianElimination();
+
+            const history = m.getOperationHistory();
+            expect(history.length).toBeGreaterThan(0);
+
+            // Verify each operation has a valid type
+            history.forEach(op => {
+                expect(['swap', 'scale', 'add']).toContain(op.type);
+            });
+        });
+    });
+
+    // --- getSolution ---
+
+    describe('getSolution', () => {
+        it('should return the last column values as the solution', () => {
+            const m = new Matrix(2, 3);
+            m.insertRowAtIndex(0, [1, 0, 7]);
+            m.insertRowAtIndex(1, [0, 1, 3]);
+
+            const solution = m.getSolution();
+            expect(solution).toEqual([7, 3]);
+        });
+
+        it('should return the solution after Gaussian elimination', () => {
+            const m = new Matrix(2, 3);
+            m.insertRowAtIndex(0, [4, 1, 9]);
+            m.insertRowAtIndex(1, [1, -1, 1]);
+
+            m.gaussianElimination();
+            const solution = m.getSolution();
+
+            expect(solution[0]).toBeCloseTo(2);
+            expect(solution[1]).toBeCloseTo(1);
+        });
+    });
+
+    // --- Undo / Redo ---
+
+    describe('undo and redo', () => {
+        it('should undo all operations and restore the original matrix', () => {
+            // 4x1 + x2 = 9
+            // x1 - x2 = 1
+            const m = new Matrix(2, 3);
+            m.insertRowAtIndex(0, [4, 1, 9]);
+            m.insertRowAtIndex(1, [1, -1, 1]);
+
+            m.gaussianElimination();
+
+            // Verify solved state
+            expect(m.getValueAt(0, 2)).toBeCloseTo(2);
+            expect(m.getValueAt(1, 2)).toBeCloseTo(1);
+
+            // Undo all
+            m.undoAll();
+
+            // Should be back to original
+            expect(m.getValueAt(0, 0)).toBeCloseTo(4);
+            expect(m.getValueAt(0, 1)).toBeCloseTo(1);
+            expect(m.getValueAt(0, 2)).toBeCloseTo(9);
+            expect(m.getValueAt(1, 0)).toBeCloseTo(1);
+            expect(m.getValueAt(1, 1)).toBeCloseTo(-1);
+            expect(m.getValueAt(1, 2)).toBeCloseTo(1);
+        });
+
+        it('should redo all operations and restore the solved matrix', () => {
+            const m = new Matrix(2, 3);
+            m.insertRowAtIndex(0, [4, 1, 9]);
+            m.insertRowAtIndex(1, [1, -1, 1]);
+
+            m.gaussianElimination();
+            m.undoAll();
+            m.redoAll();
+
+            // Should be back to solved state
+            expect(m.getValueAt(0, 0)).toBeCloseTo(1);
+            expect(m.getValueAt(0, 1)).toBeCloseTo(0);
+            expect(m.getValueAt(0, 2)).toBeCloseTo(2);
+            expect(m.getValueAt(1, 0)).toBeCloseTo(0);
+            expect(m.getValueAt(1, 1)).toBeCloseTo(1);
+            expect(m.getValueAt(1, 2)).toBeCloseTo(1);
+        });
+
+        it('should support single undo steps', () => {
+            const m = new Matrix(2, 3);
+            m.insertRowAtIndex(0, [4, 1, 9]);
+            m.insertRowAtIndex(1, [1, -1, 1]);
+
+            m.gaussianElimination();
+            const historyLength = m.getOperationHistory().length;
+
+            m.undo(); // undo one step
+
+            // History should be one shorter
+            expect(m.getOperationHistory().length).toBe(historyLength - 1);
+        });
+
+        it('should throw an error when undoing with no history', () => {
+            const m = new Matrix(2, 3);
+            expect(() => m.undo()).toThrow('No operations to undo.');
+        });
+
+        it('should throw an error when redoing with no redo history', () => {
+            const m = new Matrix(2, 3);
+            expect(() => m.redo()).toThrow('No operations to redo.');
+        });
+
+        it('should undo/redo a 3x3 system correctly', () => {
+            // 2x1 + x2 - x3 = 1
+            // x1 + 3x2 + 2x3 = 13
+            // x1 + x2 + x3 = 6
+            const m = new Matrix(3, 4);
+            m.insertRowAtIndex(0, [2, 1, -1, 1]);
+            m.insertRowAtIndex(1, [1, 3, 2, 13]);
+            m.insertRowAtIndex(2, [1, 1, 1, 6]);
+
+            m.gaussianElimination();
+
+            const solution = m.getSolution();
+            expect(solution[0]).toBeCloseTo(1);
+            expect(solution[1]).toBeCloseTo(2);
+            expect(solution[2]).toBeCloseTo(3);
+
+            // Undo all → original
+            m.undoAll();
+            expect(m.getValueAt(0, 0)).toBeCloseTo(2);
+            expect(m.getValueAt(0, 1)).toBeCloseTo(1);
+            expect(m.getValueAt(0, 2)).toBeCloseTo(-1);
+            expect(m.getValueAt(0, 3)).toBeCloseTo(1);
+            expect(m.getValueAt(1, 0)).toBeCloseTo(1);
+            expect(m.getValueAt(1, 1)).toBeCloseTo(3);
+            expect(m.getValueAt(2, 2)).toBeCloseTo(1);
+            expect(m.getValueAt(2, 3)).toBeCloseTo(6);
+
+            // Redo all → solved again
+            m.redoAll();
+            const reSolution = m.getSolution();
+            expect(reSolution[0]).toBeCloseTo(1);
+            expect(reSolution[1]).toBeCloseTo(2);
+            expect(reSolution[2]).toBeCloseTo(3);
+        });
+
+        it('should clear redo history when a new operation is recorded', () => {
+            const m = new Matrix(2, 3);
+            m.insertRowAtIndex(0, [4, 1, 9]);
+            m.insertRowAtIndex(1, [1, -1, 1]);
+
+            m.gaussianElimination();
+            m.undo(); // creates redo history
+
+            // Clear history and re-solve — redo should be empty
+            m.clearHistory();
+            expect(() => m.redo()).toThrow('No operations to redo.');
+        });
+    });
 });
