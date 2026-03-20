@@ -6,7 +6,7 @@
   "scripts": {
     "test": "npx jest",
     "build": "tsc -p tsconfig.json",
-    "start": "node src/app.js"
+    "start": "node build/app.js"
   },
   "author": "",
   "license": "ISC",

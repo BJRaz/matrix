@@ -1,6 +1,6 @@
 import { Matrix } from "./matrix";
 import { Solver } from "./solver";
-import { GaussianEliminationSolver } from "./gaussianEliminationSolver";
+import { GaussianEliminationSolver } from "./solvers/gaussianEliminationSolver";
 
 /**
  * Demo entry point for the Matrix project.

@@ -1,5 +1,5 @@
 import { Matrix } from "../src/matrix";
-import { GaussianEliminationSolver } from "../src/gaussianEliminationSolver";
+import { GaussianEliminationSolver } from "../src/solvers/gaussianEliminationSolver";
 
 describe('GaussianEliminationSolver', () => {
     // --- Gaussian Elimination ---

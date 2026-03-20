@@ -1,6 +1,6 @@
 import { Matrix } from "./matrix";
 import { Scanner, Parser } from "./parser";
-import { LinearSystemSolver } from "./interfaces";
+import { LinearSystemSolver } from "./solvers/interfaces";
 
 // --- Solver ---
 

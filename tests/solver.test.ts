@@ -1,6 +1,6 @@
 import { Scanner, Parser, TokenType } from "../src/parser";
 import { Solver } from "../src/solver";
-import { GaussianEliminationSolver } from "../src/gaussianEliminationSolver";
+import { GaussianEliminationSolver } from "../src/solvers/gaussianEliminationSolver";
 import { Matrix } from "../src/matrix";
 
 describe('Scanner', () => {
