@@ -10,7 +10,42 @@
                 "kind": "build",
                 "isDefault": true
             },
-            "label": "build"
+            "label": "build",
+            "presentation": {
+                "reveal": "silent"
+            }
+        },
+        {
+            "type": "npm",
+            "script": "test",
+            "group": {
+                "kind": "test",
+                "isDefault": true
+            },
+            "label": "test",
+            "presentation": {
+                "reveal": "always"
+            }
+        },
+        {
+            "type": "npm",
+            "script": "start",
+            "label": "run",
+            "dependsOn": ["build"],
+            "presentation": {
+                "reveal": "always"
+            }
+        },
+        {
+            "label": "clean",
+            "command": "sh",
+            "args": [
+                "-c",
+                "rm -f src/**/*.js src/**/*.map"
+            ],
+            "presentation": {
+                "reveal": "silent"
+            }
         }
     ]
 }
