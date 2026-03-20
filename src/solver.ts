@@ -1,5 +1,6 @@
 import { Matrix } from "./matrix";
 import { Scanner, Parser } from "./parser";
+import { LinearSystemSolver } from "./interfaces";
 
 // --- Solver ---
 
@@ -14,19 +15,22 @@ export type Solution = Record<string, number>;
 /**
  * Solves systems of linear equations expressed as human-readable strings.
  *
+ * Accepts a LinearSystemSolver strategy factory that clients provide.
  * Uses a Scanner to tokenize the input, a Parser to build structured equations,
- * and the Matrix class with Gaussian elimination to find the solution.
+ * and the injected solver to find the solution.
  *
  * @example
- * const solver = new Solver();
+ * const solverFactory = (matrix: Matrix) => new GaussianEliminationSolver(matrix);
+ * const solver = new Solver(solverFactory);
  * const result = solver.solveAlgebra("4x1 + x2 = 9; x1 - x2 = 1");
  * // result: { x1: 2, x2: 1 }
- *
- * @example
- * const result = solver.solveAlgebra("2a + b - c = 1; a + 3b + 2c = 13; a + b + c = 6");
- * // result: { a: 1, b: 2, c: 3 }
  */
 export class Solver {
+    /**
+     * Creates a new Solver with a required solving strategy factory.
+     * @param solverFactory A function that creates a LinearSystemSolver from a Matrix.
+     */
+    constructor(private solverFactory: (matrix: Matrix) => LinearSystemSolver) {}
 
     /**
      * Parses and solves a system of linear equations given as a string.
@@ -97,11 +101,11 @@ export class Solver {
             matrix.insertRowAtIndex(i, row);
         }
 
-        // 5. Solve using Gaussian elimination
-        matrix.gaussianElimination();
+        // 5. Solve using the configured solver strategy
+        const numericalSolver: LinearSystemSolver = this.solverFactory(matrix);
+        const solutionValues = numericalSolver.solve();
 
         // 6. Extract solution and map to variable names
-        const solutionValues = matrix.getSolution();
         const solution: Solution = {};
 
         for (let i = 0; i < numVars; i++) {

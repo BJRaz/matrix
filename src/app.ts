@@ -1,5 +1,6 @@
 import { Matrix } from "./matrix";
 import { Solver } from "./solver";
+import { GaussianEliminationSolver } from "./gaussianEliminationSolver";
 
 /**
  * Demo entry point for the Matrix project.
@@ -16,7 +17,8 @@ class Program {
         console.log("=== Solver: parse & solve from text ===");
         console.log("========================================\n");
 
-        const solver = new Solver();
+        const solverFactory = (matrix: Matrix) => new GaussianEliminationSolver(matrix);
+        const solver = new Solver(solverFactory);
 
         // 2x2 system
         const problem2x2 = "4x1 + x2 = 9; x1 - x2 = 1";
@@ -39,14 +41,13 @@ class Program {
     }
 
     /**
-     * Runs a manual matrix workflow demo using direct row operations.
+     * Runs a manual matrix workflow demo using GaussianEliminationSolver.
      *
      * Demonstrates:
      * - building an augmented matrix
-     * - solving via Gaussian elimination
+     * - solving via Gaussian elimination with a separate solver
      * - reading solution values
      * - inspecting operation history
-     * - undoing and redoing all operations
      *
      * @returns void
      */
@@ -64,18 +65,18 @@ class Program {
         console.log("Initial matrix:");
         matrix.renderMatrix();
 
-        // Solve using Gaussian elimination
-        matrix.gaussianElimination();
+        // Solve using GaussianEliminationSolver
+        const solver = new GaussianEliminationSolver(matrix);
+        const solution = solver.solve();
 
         console.log("\nSolved matrix (RREF):");
-        matrix.renderMatrix();
+        solver.getSolvedMatrix().renderMatrix();
 
-        const solution = matrix.getSolution();
         console.log(`\nSolution is: [${solution}] (x1 = ${solution[0]}, x2 = ${solution[1]})`);
 
         // Show recorded operations
         console.log("\nOperations performed:");
-        matrix.getOperationHistory().forEach((op, i) => {
+        solver.getOperationHistory().forEach((op, i) => {
             switch (op.type) {
                 case 'swap':
                     console.log(`  ${i + 1}. Swap row ${op.row1} with row ${op.row2}`);
@@ -89,23 +90,6 @@ class Program {
             }
         });
         // - END SOLVE SYSTEM OF EQUATIONS -
-        // - INVERSE ROW-OPERATIONS (undo all) -
-        console.log("\n--- Undo all operations ---");
-        matrix.undoAll();
-
-        console.log("Restored original matrix:");
-        matrix.renderMatrix();
-
-        // - REDO (re-apply solution) -
-        console.log("\n--- Redo all operations ---");
-        matrix.redoAll();
-
-        console.log("Re-solved matrix:");
-        matrix.renderMatrix();
-
-        const reSolution = matrix.getSolution();
-        console.log(`Solution is: [${reSolution}] (x1 = ${reSolution[0]}, x2 = ${reSolution[1]})`);
-        // - END INVERSE ROW-OPERATIONS -
      }
 }
 

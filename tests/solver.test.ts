@@ -1,5 +1,7 @@
 import { Scanner, Parser, TokenType } from "../src/parser";
 import { Solver } from "../src/solver";
+import { GaussianEliminationSolver } from "../src/gaussianEliminationSolver";
+import { Matrix } from "../src/matrix";
 
 describe('Scanner', () => {
     it('should tokenize a simple equation', () => {
@@ -133,7 +135,8 @@ describe('Solver', () => {
     let solver: Solver;
 
     beforeEach(() => {
-        solver = new Solver();
+        const solverFactory = (matrix: Matrix) => new GaussianEliminationSolver(matrix);
+        solver = new Solver(solverFactory);
     });
 
     it('should solve a 2x2 system (x1, x2)', () => {

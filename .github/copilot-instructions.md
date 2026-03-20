@@ -92,7 +92,7 @@ matrix.insertRowAtIndex(1, [1, -1, 1]);  // x₁ - x₂ = 1
 2. **Build:** `npm run build` or use VS Code build task (Ctrl+Shift+B)
 3. **Test:** `npm test` to validate changes
 4. **Debug:** Press F5 in VS Code to run with debugger
-5. **Run:** `npm start` to execute the application
+5. **no Run unless user approved:** `npm start` to execute the application
 
 ## When Helping with the Matrix Project
 
