@@ -24,9 +24,9 @@
  */
 export class Matrix {
     /** The underlying 2D number array representing the matrix */
-    public totalMatrix: number[][];
+    private totalMatrix: number[][];
 
-    constructor(protected rows: number, protected cols: number) {
+    constructor(private rows: number, private cols: number) {
         this.totalMatrix = Array.from({ length: this.rows }, () => Array(this.cols).fill(0));
     }
 

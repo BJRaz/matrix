@@ -1,13 +1,12 @@
-import { Matrix } from "./matrix";
 import { Solver } from "./solver";
 import { GaussianEliminationSolver } from "./solvers/gaussianEliminationSolver";
+import { Matrix } from "./matrix";
 
 /**
  * Demo entry point for the Matrix project.
  *
- * This file builds an augmented matrix for a small linear system and applies
- * elementary row operations (swap, scale, add) to perform Gaussian elimination.
- * The final matrix form is then used to read the solution values.
+ * Demonstrates parsing and solving systems of linear equations from strings
+ * using the Solver with a GaussianEliminationSolver strategy.
  */
 class Program {
     
@@ -40,57 +39,6 @@ class Program {
         // - END SOLVER -
     }
 
-    /**
-     * Runs a manual matrix workflow demo using GaussianEliminationSolver.
-     *
-     * Demonstrates:
-     * - building an augmented matrix
-     * - solving via Gaussian elimination with a separate solver
-     * - reading solution values
-     * - inspecting operation history
-     *
-     * @returns void
-     */
-    private static test1() {
-        const matrix = new Matrix(2, 3);
-
-        // - SOLVE SYSTEM OF EQUATIONS -
-        console.log("Problem is:");
-        console.log("4x1 + x2 = 9");
-        console.log("x1 - x2 = 1\n");
-
-        matrix.insertRowAtIndex(0, [4, 1, 9]);
-        matrix.insertRowAtIndex(1, [1, -1, 1]);
-
-        console.log("Initial matrix:");
-        matrix.renderMatrix();
-
-        // Solve using GaussianEliminationSolver
-        const solver = new GaussianEliminationSolver(matrix);
-        const solution = solver.solve();
-
-        console.log("\nSolved matrix (RREF):");
-        solver.getSolvedMatrix().renderMatrix();
-
-        console.log(`\nSolution is: [${solution}] (x1 = ${solution[0]}, x2 = ${solution[1]})`);
-
-        // Show recorded operations
-        console.log("\nOperations performed:");
-        solver.getOperationHistory().forEach((op, i) => {
-            switch (op.type) {
-                case 'swap':
-                    console.log(`  ${i + 1}. Swap row ${op.row1} with row ${op.row2}`);
-                    break;
-                case 'scale':
-                    console.log(`  ${i + 1}. Scale row ${op.row} by ${op.factor}`);
-                    break;
-                case 'add':
-                    console.log(`  ${i + 1}. Add ${op.factor} × row ${op.sourceRow} to row ${op.targetRow}`);
-                    break;
-            }
-        });
-        // - END SOLVE SYSTEM OF EQUATIONS -
-     }
 }
 
 Program.main();
