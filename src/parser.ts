@@ -24,7 +24,7 @@ export interface Token {
 // --- Scanner ---
 
 /**
- * Tokenizes an equation string into a stream of tokens.
+ * Tokenizes an equation string into a stream of tokens, one at a time.
  *
  * Handles:
  * - Numbers (integers and decimals, e.g. `42`, `3.14`)
@@ -35,7 +35,7 @@ export interface Token {
  *
  * @example
  * const scanner = new Scanner("4x1 + x2 = 9");
- * const tokens = scanner.tokenize();
+ * let token = scanner.nextToken(); // { type: NUMBER, value: '4' }
  */
 export class Scanner {
     private pos: number = 0;
@@ -43,61 +43,43 @@ export class Scanner {
     constructor(private readonly input: string) {}
 
     /**
-     * Tokenizes the entire input string.
-     * @returns An array of tokens, ending with an EOF token
+     * Returns the next token from the input, advancing the stream.
+     * Returns an EOF token once the end of input is reached.
+     * @returns The next Token
      * @throws Error if an unexpected character is encountered
      */
-    public tokenize(): Token[] {
-        const tokens: Token[] = [];
-
-        while (this.pos < this.input.length) {
-            const ch = this.input[this.pos];
-
-            // Skip whitespace
-            if (/\s/.test(ch)) {
-                this.pos++;
-                continue;
-            }
-
-            // Number (integer or decimal)
-            if (/[0-9]/.test(ch) || (ch === '.' && this.pos + 1 < this.input.length && /[0-9]/.test(this.input[this.pos + 1]))) {
-                tokens.push(this.readNumber());
-                continue;
-            }
-
-            // Variable (starts with a letter)
-            if (/[a-zA-Z]/.test(ch)) {
-                tokens.push(this.readVariable());
-                continue;
-            }
-
-            // Operators and delimiters
-            if (ch === '+') {
-                tokens.push({ type: TokenType.PLUS, value: '+' });
-                this.pos++;
-                continue;
-            }
-            if (ch === '-') {
-                tokens.push({ type: TokenType.MINUS, value: '-' });
-                this.pos++;
-                continue;
-            }
-            if (ch === '=') {
-                tokens.push({ type: TokenType.EQUALS, value: '=' });
-                this.pos++;
-                continue;
-            }
-            if (ch === ';') {
-                tokens.push({ type: TokenType.SEMICOLON, value: ';' });
-                this.pos++;
-                continue;
-            }
-
-            throw new Error(`Unexpected character '${ch}' at position ${this.pos}.`);
+    public nextToken(): Token {
+        // Skip whitespace
+        while (this.pos < this.input.length && /\s/.test(this.input[this.pos])) {
+            this.pos++;
         }
 
-        tokens.push({ type: TokenType.EOF, value: '' });
-        return tokens;
+        if (this.pos >= this.input.length) {
+            return { type: TokenType.EOF, value: '' };
+        }
+
+        const ch = this.input[this.pos];
+
+        // Number (integer or decimal)
+        if (/[0-9]/.test(ch) || (ch === '.' && this.pos + 1 < this.input.length && /[0-9]/.test(this.input[this.pos + 1]))) {
+            return this.readNumber();
+        }
+
+        // Variable (starts with a letter)
+        if (/[a-zA-Z]/.test(ch)) {
+            return this.readVariable();
+        }
+
+        // Operators and delimiters
+        this.pos++;
+        switch (ch) {
+            case '+': return { type: TokenType.PLUS, value: '+' };
+            case '-': return { type: TokenType.MINUS, value: '-' };
+            case '=': return { type: TokenType.EQUALS, value: '=' };
+            case ';': return { type: TokenType.SEMICOLON, value: ';' };
+        }
+
+        throw new Error(`Unexpected character '${ch}' at position ${this.pos - 1}.`);
     }
 
     /**
@@ -158,13 +140,15 @@ export interface ParsedEquation {
  * and all constant terms are collected on the right-hand side.
  *
  * @example
- * const tokens = new Scanner("4x1 + x2 = 9; x1 - x2 = 1").tokenize();
- * const equations = new Parser(tokens).parse();
+ * const scanner = new Scanner("4x1 + x2 = 9; x1 - x2 = 1");
+ * const equations = new Parser(scanner).parse();
  */
 export class Parser {
-    private pos: number = 0;
+    private current: Token;
 
-    constructor(private readonly tokens: Token[]) {}
+    constructor(private readonly scanner: Scanner) {
+        this.current = this.scanner.nextToken();
+    }
 
     /**
      * Parses all equations from the token stream.
@@ -291,7 +275,7 @@ export class Parser {
         }
 
         throw new Error(
-            `Unexpected token '${token.value}' (${token.type}) at position ${this.pos}. ` +
+            `Unexpected token '${token.value}' (${token.type}). ` +
             `Expected a number or variable.`
         );
     }
@@ -307,14 +291,14 @@ export class Parser {
      * Returns the current token without advancing.
      */
     private currentToken(): Token {
-        return this.tokens[this.pos];
+        return this.current;
     }
 
     /**
-     * Advances to the next token.
+     * Advances to the next token by fetching it from the scanner.
      */
     private advance(): void {
-        this.pos++;
+        this.current = this.scanner.nextToken();
     }
 
     /**

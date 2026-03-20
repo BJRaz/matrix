@@ -49,12 +49,9 @@ export class Solver {
      * // → { x1: 2, x2: 1 }
      */
     public solveAlgebra(input: string): Solution {
-        // 1. Scan
+        // 1. Scan & 2. Parse
         const scanner = new Scanner(input);
-        const tokens = scanner.tokenize();
-
-        // 2. Parse
-        const parser = new Parser(tokens);
+        const parser = new Parser(scanner);
         const equations = parser.parse();
 
         if (equations.length === 0) {

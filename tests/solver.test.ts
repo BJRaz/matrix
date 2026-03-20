@@ -1,12 +1,22 @@
-import { Scanner, Parser, TokenType } from "../src/parser";
+import { Scanner, Parser, TokenType, Token } from "../src/parser";
 import { Solver } from "../src/solver";
 import { GaussianEliminationSolver } from "../src/solvers/gaussianEliminationSolver";
 import { Matrix } from "../src/matrix";
 
+/** Helper: drain all tokens from a scanner into an array */
+function collectTokens(scanner: Scanner): Token[] {
+    const tokens: Token[] = [];
+    let token: Token;
+    do {
+        token = scanner.nextToken();
+        tokens.push(token);
+    } while (token.type !== TokenType.EOF);
+    return tokens;
+}
+
 describe('Scanner', () => {
     it('should tokenize a simple equation', () => {
-        const scanner = new Scanner("4x1 + x2 = 9");
-        const tokens = scanner.tokenize();
+        const tokens = collectTokens(new Scanner("4x1 + x2 = 9"));
 
         expect(tokens[0]).toEqual({ type: TokenType.NUMBER, value: '4' });
         expect(tokens[1]).toEqual({ type: TokenType.VARIABLE, value: 'x1' });
@@ -18,8 +28,7 @@ describe('Scanner', () => {
     });
 
     it('should tokenize multiple equations separated by semicolons', () => {
-        const scanner = new Scanner("x + y = 5; 2x - y = 1");
-        const tokens = scanner.tokenize();
+        const tokens = collectTokens(new Scanner("x + y = 5; 2x - y = 1"));
 
         const types = tokens.map(t => t.type);
         expect(types).toContain(TokenType.SEMICOLON);
@@ -27,23 +36,20 @@ describe('Scanner', () => {
     });
 
     it('should handle decimal numbers', () => {
-        const scanner = new Scanner("3.5x = 7");
-        const tokens = scanner.tokenize();
+        const tokens = collectTokens(new Scanner("3.5x = 7"));
 
         expect(tokens[0]).toEqual({ type: TokenType.NUMBER, value: '3.5' });
         expect(tokens[1]).toEqual({ type: TokenType.VARIABLE, value: 'x' });
     });
 
     it('should handle minus sign', () => {
-        const scanner = new Scanner("x1 - x2 = 1");
-        const tokens = scanner.tokenize();
+        const tokens = collectTokens(new Scanner("x1 - x2 = 1"));
 
         expect(tokens[1]).toEqual({ type: TokenType.MINUS, value: '-' });
     });
 
     it('should handle multi-character variable names', () => {
-        const scanner = new Scanner("price + tax = 100");
-        const tokens = scanner.tokenize();
+        const tokens = collectTokens(new Scanner("price + tax = 100"));
 
         expect(tokens[0]).toEqual({ type: TokenType.VARIABLE, value: 'price' });
         expect(tokens[2]).toEqual({ type: TokenType.VARIABLE, value: 'tax' });
@@ -51,14 +57,14 @@ describe('Scanner', () => {
 
     it('should throw on unexpected characters', () => {
         const scanner = new Scanner("x & y = 1");
-        expect(() => scanner.tokenize()).toThrow("Unexpected character '&'");
+        expect(() => scanner.nextToken()).not.toThrow(); // 'x' is fine
+        expect(() => scanner.nextToken()).toThrow("Unexpected character '&'");
     });
 });
 
 describe('Parser', () => {
     it('should parse a simple equation', () => {
-        const tokens = new Scanner("4x1 + x2 = 9").tokenize();
-        const equations = new Parser(tokens).parse();
+        const equations = new Parser(new Scanner("4x1 + x2 = 9")).parse();
 
         expect(equations).toHaveLength(1);
         expect(equations[0].constant).toBe(9);
@@ -71,8 +77,7 @@ describe('Parser', () => {
     });
 
     it('should parse multiple equations', () => {
-        const tokens = new Scanner("4x1 + x2 = 9; x1 - x2 = 1").tokenize();
-        const equations = new Parser(tokens).parse();
+        const equations = new Parser(new Scanner("4x1 + x2 = 9; x1 - x2 = 1")).parse();
 
         expect(equations).toHaveLength(2);
         expect(equations[0].constant).toBe(9);
@@ -80,8 +85,7 @@ describe('Parser', () => {
     });
 
     it('should handle leading negative sign', () => {
-        const tokens = new Scanner("-2x + y = 3").tokenize();
-        const equations = new Parser(tokens).parse();
+        const equations = new Parser(new Scanner("-2x + y = 3")).parse();
 
         expect(equations[0].terms).toEqual(
             expect.arrayContaining([
@@ -93,8 +97,7 @@ describe('Parser', () => {
 
     it('should handle variables on the right-hand side', () => {
         // 2x = y + 4  →  2x - y = 4
-        const tokens = new Scanner("2x = y + 4").tokenize();
-        const equations = new Parser(tokens).parse();
+        const equations = new Parser(new Scanner("2x = y + 4")).parse();
 
         expect(equations[0].terms).toEqual(
             expect.arrayContaining([
@@ -107,8 +110,7 @@ describe('Parser', () => {
 
     it('should handle constants on the left-hand side', () => {
         // x + 3 = 10  →  x = 7
-        const tokens = new Scanner("x + 3 = 10").tokenize();
-        const equations = new Parser(tokens).parse();
+        const equations = new Parser(new Scanner("x + 3 = 10")).parse();
 
         expect(equations[0].terms).toEqual(
             expect.arrayContaining([
@@ -119,15 +121,13 @@ describe('Parser', () => {
     });
 
     it('should handle trailing semicolon', () => {
-        const tokens = new Scanner("x = 5;").tokenize();
-        const equations = new Parser(tokens).parse();
+        const equations = new Parser(new Scanner("x = 5;")).parse();
 
         expect(equations).toHaveLength(1);
     });
 
     it('should throw on missing equals sign', () => {
-        const tokens = new Scanner("x + y").tokenize();
-        expect(() => new Parser(tokens).parse()).toThrow("Expected '='");
+        expect(() => new Parser(new Scanner("x + y")).parse()).toThrow("Expected '='");
     });
 });
 
