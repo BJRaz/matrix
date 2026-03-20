@@ -1,4 +1,5 @@
-import { Scanner, Parser, Solver, TokenType } from "../src/solver";
+import { Scanner, Parser, TokenType } from "../src/parser";
+import { Solver } from "../src/solver";
 
 describe('Scanner', () => {
     it('should tokenize a simple equation', () => {

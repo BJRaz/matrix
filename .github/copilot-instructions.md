@@ -101,14 +101,18 @@ matrix.insertRowAtIndex(1, [1, -1, 1]);  // x₁ - x₂ = 1
 - **Fixing bugs:** Ensure all row operations preserve mathematical correctness
 - **Extending functionality:** Consider backward compatibility with existing method signatures
 - **Performance:** The matrix operations are simple and correctness takes priority over optimization
+- **Separation of concerns is of essence:** Each module must have a single, well-defined responsibility. Lexing belongs in `parser.ts`, numerical solving in `matrix.ts`, equation orchestration in `solver.ts`. Do not mix concerns across module boundaries — if a class grows to encompass unrelated responsibilities, extract it into its own module.
 
 ## Key Files to Reference
 
-- `src/matrix.ts` - Main implementation
+- `src/matrix.ts` - Main implementation (Matrix class, Gaussian elimination, undo/redo)
+- `src/parser.ts` - Scanner, Parser, and related types (TokenType, Token, Term, ParsedEquation)
+- `src/solver.ts` - Solver class (solveAlgebra) and Solution type
 - `src/app.ts` - Usage example
-- `tests/matrix.test.ts` - Test patterns
+- `tests/matrix.test.ts` - Matrix test patterns
+- `tests/solver.test.ts` - Parser and Solver test patterns
 - `tsconfig.json` - TypeScript configuration
-- `jest.config.js` - Test configuration
+- `jest.config.ts` - Test configuration
 
 ## Mathematical Correctness
 
