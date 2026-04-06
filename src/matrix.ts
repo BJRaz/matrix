@@ -61,6 +61,23 @@ export class Matrix {
         }
     }
 
+    /**
+     * Scales a specific row of the matrix in place by a non-zero scalar.
+     *
+     * Multiplies each element in the specified zero-based row by the provided
+     * multiplier `c`, updating the underlying matrix storage.
+     *
+     * @param row - Zero-based index of the row to scale. Must satisfy 0 <= row < this.rows.
+     * @param c - Non-zero scalar to multiply the row by.
+     * @throws {Error} If `c` is 0.
+     * @throws {Error} If `row` is not within the valid range.
+     * @remarks
+     * - This method mutates the matrix stored in `this.totalMatrix`.
+     * - Time complexity: O(this.cols).
+     * @example
+     * // Scale the second row (index 1) by 2
+     * matrix.scaleRow(1, 2);
+     */
     public scaleRow(row: number, c: number): void {
         if (c === 0) throw new Error('c must not be 0');
         if (row >= this.rows || row < 0) throw new Error('Row is not within range.');
@@ -69,24 +86,77 @@ export class Matrix {
         }
     }
 
+    /**
+     * Swap two rows of the matrix in-place.
+     *
+     * Swaps the entries at the given row indices within the internal `totalMatrix`
+     * storage. The operation mutates the matrix and does not allocate a new matrix.
+     *
+     * @param row1 - Zero-based index of the first row to swap.
+     * @param row2 - Zero-based index of the second row to swap.
+     *
+     * @throws {Error} If either `row1` or `row2` is outside the valid row range.
+     *
+     * @example
+     * // Swap the first and second rows
+     * matrix.swapRows(0, 1);
+     */
     public swapRows(row1: number, row2: number): void {
+        if (row1 >= this.rows || row2 >= this.rows || row1 < 0 || row2 < 0) {
+            throw new Error('Row indices must be within range.');
+        }
         [this.totalMatrix[row1], this.totalMatrix[row2]] = [this.totalMatrix[row2], this.totalMatrix[row1]];
     }
 
+    /**
+     * Renders the current state of the matrix to the console in a readable format.
+     *
+     * Each row is printed on its own line, prefixed with the row index, for example:
+     * `[0] [ 1 2 3 ]`
+     *
+     * This method is primarily intended for debugging and demonstration purposes.
+     */
     public renderMatrix(): void {
         const str = this.totalMatrix.map((row, index) => `[${index}] [ ${row.join(' ')} ]`).join('\n');
         console.log(str);
     }
 
+    /**
+     * Gets the number of rows in this matrix.
+     *
+     * @remarks
+     * Simple accessor for the internal `rows` property; value is expected to be a non-negative integer.
+     *
+     * @returns The number of rows in the matrix.
+     * @return The number of rows in the matrix (JDoc-compatible).
+     */
     public getNoRows(): number {
         return this.rows;
     }
 
+    /**
+     * Gets the number of columns in the matrix.
+     *
+     * Returns the count of columns maintained by this matrix instance.
+     *
+     * @returns {number} The number of columns.
+     */
     public getNoCols(): number {
         return this.cols;
     }
 
+    /**
+     * Returns the numeric value stored at the specified zero-based row and column in the matrix.
+     *
+     * @param row - Zero-based index of the matrix row.
+     * @param col - Zero-based index of the matrix column.
+     * @returns The numeric value at the given row and column.
+     * @throws {RangeError} If either index is out of bounds for the underlying matrix.
+     */
     public getValueAt(row: number, col: number): number {
+        if (row < 0 || row >= this.rows || col < 0 || col >= this.cols) {
+            throw new RangeError('Row or column index is out of bounds.');
+        }
         return this.totalMatrix[row][col];
     }
 }

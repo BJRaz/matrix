@@ -36,10 +36,13 @@ describe('Scanner', () => {
     });
 
     it('should handle decimal numbers', () => {
-        const tokens = collectTokens(new Scanner("3.5x = 7"));
+        const tokens = collectTokens(new Scanner("3.5x = .7"));
 
         expect(tokens[0]).toEqual({ type: TokenType.NUMBER, value: '3.5' });
         expect(tokens[1]).toEqual({ type: TokenType.VARIABLE, value: 'x' });
+        expect(tokens[2]).toEqual({ type: TokenType.EQUALS, value: '=' });
+        expect(tokens[3]).toEqual({ type: TokenType.NUMBER, value: '.7' });
+        expect(tokens[4]).toEqual({ type: TokenType.EOF, value: '' });
     });
 
     it('should handle minus sign', () => {
@@ -80,8 +83,24 @@ describe('Parser', () => {
         const equations = new Parser(new Scanner("4x1 + x2 = 9; x1 - x2 = 1")).parse();
 
         expect(equations).toHaveLength(2);
+
+        // First equation: 4x1 + x2 = 9
         expect(equations[0].constant).toBe(9);
+        expect(equations[0].terms).toEqual(
+            expect.arrayContaining([
+                expect.objectContaining({ coefficient: 4, variable: 'x1' }),
+                expect.objectContaining({ coefficient: 1, variable: 'x2' }),
+            ])
+        );
+
+        // Second equation: x1 - x2 = 1
         expect(equations[1].constant).toBe(1);
+        expect(equations[1].terms).toEqual(
+            expect.arrayContaining([
+                expect.objectContaining({ coefficient: 1, variable: 'x1' }),
+                expect.objectContaining({ coefficient: -1, variable: 'x2' }),
+            ])
+        );
     });
 
     it('should handle leading negative sign', () => {
@@ -93,6 +112,7 @@ describe('Parser', () => {
                 expect.objectContaining({ coefficient: 1, variable: 'y' }),
             ])
         );
+        expect(equations[0].constant).toBe(3);
     });
 
     it('should handle variables on the right-hand side', () => {
