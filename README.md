@@ -1,22 +1,42 @@
 # Matrix
 
-A TypeScript-based matrix operations tool for solving systems of linear equations using Gaussian elimination.
+TypeScript toolkit for parsing and solving linear equation systems with Gaussian elimination.
 
-## Overview
+## Current Status (April 2026)
 
-This project provides a `Matrix` class that supports basic row operations commonly used in linear algebra:
+The project currently includes:
 
-- Insert a row at a specific index
-- Add a scaled version of one row to another
-- Scale a row by a constant
-- Swap two rows
-- Render the matrix in a readable format
-- Get values at specific positions
+- A focused `Matrix` class for row operations and matrix accessors
+- A text equation pipeline (`Scanner` + `Parser`) for algebra input
+- A pluggable solver architecture via `LinearSystemSolver`
+- A production `GaussianEliminationSolver` implementation
+- Jest test suites for matrix operations, parser/scanner, solver behavior, and Gaussian elimination internals
 
-## Prerequisites
+## Features
 
-- [Node.js](https://nodejs.org/) (with npm)
-- TypeScript (installed via dev dependencies)
+### Matrix operations
+
+- Insert rows in an augmented matrix
+- Add scaled source row into target row: `row1 += c * row2`
+- Scale rows by non-zero constants
+- Swap rows
+- Read matrix values and dimensions
+
+### Algebra parsing and solving
+
+- Parse semicolon-separated equations, e.g. `4x1 + x2 = 9; x1 - x2 = 1`
+- Support integer and decimal coefficients
+- Support variable names like `x`, `x1`, `price`, `tax`
+- Handle terms/constants on either side of `=`
+- Solve for unique solutions through Gaussian elimination
+- Return a typed `Record<string, number>` solution map
+
+### Solver internals
+
+- Deep-copy input matrix (solver does not mutate caller matrix)
+- Partial pivoting (best absolute pivot per column)
+- Floating-point tolerance checks (`EPSILON = 1e-10`)
+- Operation history recording (`swap`, `scale`, `add`)
 
 ## Installation
 
@@ -24,100 +44,82 @@ This project provides a `Matrix` class that supports basic row operations common
 npm install
 ```
 
-## Build
-
-Compile TypeScript to JavaScript:
+## Scripts
 
 ```sh
 npm run build
-```
-
-This runs `tsc -p tsconfig.json` and outputs `.js` and `.map` files alongside the source `.ts` files.
-
-## Run
-
-After building, run the demo application:
-
-```sh
+npm test
 npm start
 ```
 
-This executes `src/app.js`, which demonstrates solving the system of linear equations:
+- `npm run build`: Compiles `src/` TypeScript into `build/`
+- `npm test`: Runs Jest with `ts-jest` over `tests/**/*.test.ts`
+- `npm start`: Runs `node build/app.js` (demo program)
 
-```
-4x₁ +  x₂ = 9
- x₁ -  x₂ = 1
-```
+## Usage
 
-The program uses Gaussian elimination (row operations) to arrive at the solution **x₁ = 2**, **x₂ = 1**, and then reverses the operations to restore the original matrix.
-
-## Test
-
-Run the test suite using Jest:
-
-```sh
-npm test
-```
-
-Tests are located in `tests/matrix.test.ts`.
-
-## Project Structure
-
-```
-├── src/
-│   ├── app.ts          # Main application entry point
-│   └── matrix.ts       # Matrix class implementation
-├── tests/
-│   └── matrix.test.ts  # Jest test suite
-├── build/              # Compiled output (alternate)
-├── .vscode/
-│   ├── launch.json     # VS Code debug configuration
-│   ├── tasks.json      # VS Code build tasks
-│   └── settings.json   # VS Code workspace settings
-├── package.json        # Project metadata and scripts
-├── tsconfig.json       # TypeScript compiler configuration
-└── jest.config.js      # Jest configuration
-```
-
-## Usage Example
+### High-level solver from text equations
 
 ```typescript
+import { Solver } from "./solver";
 import { Matrix } from "./matrix";
+import { GaussianEliminationSolver } from "./solvers/gaussianEliminationSolver";
 
-// Create a 2x3 augmented matrix (2 equations, 2 unknowns + 1 result column)
-const matrix = new Matrix(2, 3);
+const solverFactory = (matrix: Matrix) => new GaussianEliminationSolver(matrix);
+const solver = new Solver(solverFactory);
 
-// Set up the system: 4x₁ + x₂ = 9, x₁ - x₂ = 1
-matrix.insertRowAtIndex(0, [4, 1, 9]);
-matrix.insertRowAtIndex(1, [1, -1, 1]);
-
-// Gaussian elimination
-matrix.addToRow(0, 1, 1);      // row0 = row0 + 1 * row1
-matrix.scaleRow(0, 1 / 5);     // row0 = (1/5) * row0
-matrix.scaleRow(1, -1);        // row1 = -1 * row1
-matrix.addToRow(1, 0, 1);      // row1 = row1 + 1 * row0
-
-matrix.renderMatrix();
-// Solution: x₁ = 2, x₂ = 1
+const solution = solver.solveAlgebra("4x1 + x2 = 9; x1 - x2 = 1");
+// { x1: 2, x2: 1 }
 ```
 
-## Matrix API
+### Matrix API (core operations)
 
 | Method | Description |
 |---|---|
-| `new Matrix(rows, cols)` | Create a matrix initialized with zeros |
-| `insertRowAtIndex(index, values)` | Replace a row with the given values |
-| `addToRow(target, source, scalar)` | Add `scalar × source` row to `target` row |
-| `scaleRow(index, scalar)` | Multiply all values in a row by `scalar` (cannot be 0) |
-| `swapRows(a, b)` | Swap two rows |
-| `getValueAt(row, col)` | Get the value at a specific position |
-| `getNoRows()` | Get the number of rows |
-| `getNoCols()` | Get the number of columns |
-| `renderMatrix()` | Print the matrix to the console |
+| `new Matrix(rows, cols)` | Create a zero-initialized matrix |
+| `insertRowAtIndex(rowIndex, row)` | Replace a row at index |
+| `addToRow(row1, row2, c)` | `row1 += c * row2` |
+| `scaleRow(row, c)` | Scale row by non-zero `c` |
+| `swapRows(row1, row2)` | Swap two rows |
+| `getValueAt(row, col)` | Read a value |
+| `getNoRows()` | Number of rows |
+| `getNoCols()` | Number of columns |
+| `renderMatrix()` | Print matrix to console |
 
-## Debugging
+## Error Handling
 
-A VS Code launch configuration is provided in `.vscode/launch.json`. Press **F5** to build and debug the application.
+Examples of current validation behavior:
+
+- Matrix row bounds checks (`Row index is out of bounds.`, `Row is not within range.`)
+- Zero-scaling prevention (`c must not be 0`)
+- Parser/scanner syntax errors (`Unexpected character`, missing `=`)
+- Solver shape validation (equation/variable count mismatch)
+- No-unique-solution detection (singular or inconsistent systems)
+
+## Project Structure
+
+```text
+src/
+	app.ts                           # Demo app (multiple sample systems)
+	matrix.ts                        # Matrix data structure + row operations
+	parser.ts                        # Scanner, token types, parser AST output
+	solver.ts                        # High-level orchestration: parse -> matrix -> solve
+	solvers/
+		interfaces.ts                  # LinearSystemSolver, RowOperation
+		gaussianEliminationSolver.ts   # Gaussian elimination implementation
+
+tests/
+	matrix.test.ts
+	solver.test.ts
+	gaussianEliminationSolver.test.ts
+```
+
+## Notes
+
+- TypeScript strict mode is enabled in `tsconfig.json`
+- Jest config lives in `jest.config.ts`
+- Build output is generated to `build/`
+- Ongoing updates are tracked in `CHANGELOG.md`
 
 ## License
 
